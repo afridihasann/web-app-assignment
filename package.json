@@ -11,5 +11,14 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.3"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/afridihasann/web-app-assignment.git"
+  },
+  "bugs": {
+    "url": "https://github.com/afridihasann/web-app-assignment/issues"
+  },
+  "homepage": "https://github.com/afridihasann/web-app-assignment#readme"
 }
