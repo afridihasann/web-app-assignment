@@ -115,3 +115,28 @@ module.exports.getEmployeeByNum = function (num) {
     resolve(m_employee);
   });
 };
+
+module.exports.updateEmployee = (employeeData) => {
+  return new Promise((resolve, reject) => {
+    let empIdx = employees.findIndex(x => x.employeeNum == employeeData.employeeNum);
+
+    if (empIdx >= 0) {
+      employees[empIdx].firstName = employeeData.firstName;
+      employees[empIdx].lastName = employeeData.lastName;
+      employees[empIdx].email = employeeData.email;
+      employees[empIdx].addressStreet = employeeData.addressStreet;
+      employees[empIdx].addressCity = employeeData.addressCity;
+      employees[empIdx].addressState = employeeData.addressState;
+      employees[empIdx].addressPostal = employeeData.addressPostal;
+      employees[empIdx].isManager = employeeData.isManager;
+      employees[empIdx].employeeManagerNum = employeeData.employeeManagerNum;
+      employees[empIdx].status = employeeData.status;
+      employees[empIdx].department = employeeData.department;
+
+      resolve();
+    }
+    else {
+      reject("no employee found");
+    }
+  })
+}
