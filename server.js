@@ -24,7 +24,7 @@ const { resolve } = require("path");
 const exphbs = require("express-handlebars");
 app.use(express.static('public')); // static middleware
 app.use(bodyParser.urlencoded({ extended: true }));
-app.engine(".hbs", exphbs({
+app.engine(".hbs", exphbs.engine({
   extname: ".hbs",
   defaultLayout: "main",
   helpers: {
@@ -58,7 +58,6 @@ app.get("/", (req, res) => {
   console.log("Express http server listening on: " + HTTP_PORT);
   res.render("home", {});
   // res.sendFile(path.join(__dirname, "/views/home.html"));
-
 });
 
 
