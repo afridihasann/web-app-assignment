@@ -82,6 +82,8 @@ app.get("/about", function (req, res) {
   res.render("about", {});
 });
 
+//Employee
+
 app.get("/employees", (req, res) => {
   if (req.query.status) {
     dataService
@@ -156,6 +158,12 @@ app.post("/employee/update", (req, res) => {
   .then(res.redirect("/employees"))
   .catch((err) => res.render("employee", { message: "no results"}));
 }); 
+
+app.get('/employees/delete/:value', (req,res) => {
+  dataservice.deleteEmployeeByNum(req.params.value)
+  .then(res.redirect("/employees"))
+  .catch(err => res.status(500).send("Unable to Remove Employee / Employee not found"))
+});
 
 app.get("/managers", (req, res) => {
   let managers = [];
