@@ -1,219 +1,288 @@
 const Sequelize = require('sequelize');
-var sequelize = new Sequelize('de1qcbitp613jn', 'qnspinbizdpsom', '658baf6c79c4a81bbc09e0e7846431fd4cedaaf12ae0ffa93cb706395642c5ef', {
-    host: 'ec2-18-215-96-22.compute-1.amazonaws.com',
+
+var sequelize = new Sequelize('danje1mhbk3hao', 'turqcqnvbfsayk', 'c4ec2c9da223231ab7b71e5a3d8de6f16dec88da77844e3e4d8ed952fa58057a', {
+    host: 'ec2-184-73-199-72.compute-1.amazonaws.com', //host
     dialect: 'postgres',
     port: 5432,
     dialectOptions: {
-        ssl: { 
-          rejectUnauthorized: false
-        }
+        ssl: true
     }
 });
 
-const Employee = sequelize.define('employee', {
-    employeeNum: {
-        type:Sequelize.INTEGER,
-        primaryKey:true,
-        autoIncrement:true
-    },
-    firstName:Sequelize.STRING,
-    lastName:Sequelize.STRING,
-    email:Sequelize.STRING,
-    SSN:Sequelize.STRING,
-    addressStreet:Sequelize.STRING,
-    addressCity:Sequelize.STRING,
-    addressState:Sequelize.STRING,
-    addressPostal:Sequelize.STRING,
-    maritalStatus:Sequelize.STRING,
-    isManager:Sequelize.BOOLEAN,
-    employeeManagerNum:Sequelize.INTEGER,
-    status:Sequelize.STRING,
-    department:Sequelize.INTEGER,
-    hireDate:Sequelize.STRING
+sequelize.authenticate().then(() => {
+    console.log('Connection has been established successfully.');
+}).catch((err) => {
+    console.log('Unable to connect to the database:', err);
 });
 
-const Department = sequelize.define('department', {
-    departmentId: {
-        type:Sequelize.INTEGER,
-        primaryKey:true,
-        autoIncrement:true
+// Creating Data Models
+const Employee = sequelize.define('Employee',{
+    employeeNum:{
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
     },
-    departmentName:Sequelize.STRING
-})
+    firstName: Sequelize.STRING,
+    last_name: Sequelize.STRING,
+    email: Sequelize.STRING,
+    SSN: Sequelize.STRING,
+    addressStreet: Sequelize.STRING,
+    addresCity: Sequelize.STRING,
+    addressState: Sequelize.STRING,
+    addressPostal: Sequelize.STRING,
+    matritalStatus: Sequelize.STRING,
+    isManager: Sequelize.BOOLEAN,
+    employeeManagerNum: Sequelize.INTEGER,
+    status: Sequelize.STRING,
+    department: Sequelize.INTEGER,
+    hireDate: Sequelize.STRING
+    }, {
+        createdAt: false, // disable createdAt
+        updatedAt: false // disable updatedAt
+});
 
-exports.initialize = () => {
-    return new Promise((resolve,reject) => {
-        sequelize.sync()
-        .then(resolve('database synced'))
-        .catch(reject('unable to sync the database'));
-    })
-};
+const Department = sequelize.define('Department',{
+    departmentId:{
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    departmentName: Sequelize.STRING
+    }, {
+        createdAt: false, // disable createdAt
+        updatedAt: false // disable updatedAt
+});
 
-exports.getAllEmployees = () => {
-    return new Promise((resolve,reject) => {
-        sequelize.sync()
-        .then(resolve(Employee.findAll()))
-        .catch(reject('no results returned'));
-    })
-};
-
-exports.getEmployeeByStatus = (status) => {
-    return new Promise((resolve,reject) => {
-        Employee.findAll({
-            where:{
-                status: status
-            }
-        })
-        .then(resolve(Employee.findAll({ where: { status: status }})))
-        .catch(reject('no results returned'))
-    })
-};
-
-exports.getEmployeesByDepartment = (department) => {
-    return new Promise((resolve,reject) => {
-        Employee.findAll({
-            where: {
-                department:department
-            }
-        })
-        .then(data => resolve(data))
-        .catch(err => reject(err))
-    })
-};
-
-exports.getEmployeesByManager = (manager) => {
-    return new Promise((resolve,reject) => {
-        Employee.findAll({
-            where: {
-                employeeManagerNum: manager
-            }
-        })
-        .then(resolve(Employee.findAll({ where: { employeeManagerNum: manager }})))
-        .catch(reject('no results returned'))
-    })
-};
-
-exports.getEmployeeByNum = (value) => {
-    return new Promise((resolve,reject) => {
-        Employee.findAll({
-            where: {
-                employeeNum:value
-            }
-        })
-        .then(data => resolve(data))
-        .catch('no results returned')
-    })
-};
-
-exports.getManagers = () => {
-    return new Promise((resolve,reject) => {
-        Employee.findAll({
-            where: {
-                isManager:true
-            }
-        })
-        .then(resolve(Employee.findAll({ where: { isManager: true }})))
-        .catch('no results returned')
-    })
-};
-
-exports.getDepartments = () => {
+module.exports.initialize = () => {
     return new Promise((resolve, reject) => {
-        Department.findAll()
-        .then(data => { resolve(data); })
-        .catch(err => { reject(err); })
-    }) 
-};
+        sequelize.sync().then((Employee) => {
+            resolve();
+        }).then((Department) => {
+            resolve();
+        }).catch((err) => {
+            reject("unable to sync the database");
+        });
+        reject();
+    });
+}
 
-exports.addEmployee = (employeeData) => {
-    return new Promise((resolve,reject) => {
-        employeeData.isManager = employeeData.isManager ? true : false;
-        for (var i in employeeData) {
-            if (employeeData[i] == "") { employeeData[i] = null; }
-        }
+module.exports.getAllEmployees = () => {
+    return new Promise((resolve, reject) => {
+        sequelize.sync().then(() => {
+            resolve(Employee.findAll());
+        }).catch((err) => {
+            reject("no results returned.");
+        });
+    });
+}
 
-        Employee.create(employeeData)
-        .then(resolve(Employee.findAll()))
-        .catch(reject('unable to create employee'))
-    })
-}; 
+module.exports.getEmployeesByStatus = (status) => {
+    return new Promise((resolve, reject) => {
+        sequelize.sync().then(() => {
+            resolve(Employee.findAll({
+                where:{
+                    status: status
+                }}));
+        }).catch((err) => {
+            reject("no results returned.");
+        });
+    });
+}
 
-exports.updateEmployee = (employeeData) => {
-    return new Promise((resolve,reject) => {
-        employeeData.isManager = (employeeData.isManager) ? true : false;
+module.exports.getEmployeesByDepartment = (department) => {
+    return new Promise((resolve, reject) => {
+        sequelize.sync().then(() => {
+            resolve(Employee.findAll({
+                where:{
+                    department: department
+            }}));
+        }).catch((err) => {
+            reject("no results returned.");
+        });
+    });
+}
 
-        for (var i in employeeData) {
-            if (employeeData[i] == "") { employeeData[i] = null; }
-        }
+module.exports.getEmployeesByManager = (manager) => {
+    return new Promise((resolve, reject) => {
+        sequelize.sync().then(() => {
+            resolve(Employee.findAll({
+                where:{
+                    employeeManagerNum: manager
+                }
+            }));
+            }).catch((err) => {
+                reject("no results returned.");
+        });
+    });
+}
 
-        sequelize.sync()
-        .then(Employee.update(employeeData, {where: {
-            employeeNum: employeeData.employeeNum
-        }}))
-        .then(resolve(Employee.update(employeeData, { where: { employeeNum:employeeData.employeeNum }})))
-        .catch(reject('unable to update employee'))
-    })
-};
+module.exports.getEmployeeByNum = (num) => {
+    return new Promise((resolve, reject) => {
+        sequelize.sync().then(() => {
+            resolve(Employee.findAll({
+                where:{
+                    employeeNum: num
+                }
+            }));
+            }).catch((err) => {
+                reject("no results returned.");
+        });
+    });
+}
 
-exports.addDepartment = (departmentData) => {
-    return new Promise((resolve,reject) => {
-        for (var i in departmentData) {
-            if (departmentData[i] == "") { departmentData[i] = null; }
-        }
+module.exports.getManagers = () => {
+    return new Promise((resolve, reject) => {
+        sequelize.sync().then(() => {
+            resolve(Employee.findAll({
+                where:{
+                    isManager: true
+                }})
+            );
+        }).catch((err) => {
+            reject("no results returned.")
+        });
+    });
+}
 
-        Department.create(departmentData)
-        .then(resolve(Department.findAll()))
-        .catch(reject('unable to add department'))
-    })
-};
+module.exports.getDepartments = () => {
+    return new Promise((resolve, reject) => {
+        sequelize.sync().then(() => {
+            resolve(Department.findAll());
+        }).catch((err) => {
+            reject("no results returned.");
+        });
+    });
+}
 
-exports.updateDepartment = (departmentData) => {
-    return new Promise((resolve,reject) => {
-        for (var i in departmentData) {
-            if (departmentData[i] == "") { departmentData[i] = null; }
-        }
-
-        sequelize.sync()
-        .then(Department.update(departmentData, {where: { 
-            departmentId: departmentData.departmentId
-        }}))
-        .then(resolve(Department.update(departmentData, {where: { departmentId:departmentData.departmentId }})))
-        .catch(reject('unable to update department'))
-    })
-};
-
-exports.getDepartmentById = id => {
-    return new Promise((resolve,reject) => {
-        Department.findAll({ 
-            where: {
-                departmentId: id
+module.exports.addEmployee = (employeeData) => {
+    employeeData.isManager = (employeeData.isManager) ? true : false;
+    return new Promise((resolve, reject) => {
+        sequelize.sync().then(() => {
+            for (let x in employeeData) {
+                if(employeeData[x] == ""){
+                    employeeData[x] = null;
+                }
             }
-        })
-        .then(resolve(Department.findAll({ where: { departmentId: id }})))
-        .catch(reject('no results returned'))
-    })
-};
+            resolve(Employee.create({
+                employeeNum: employeeData.employeeNum,
+                firstName: employeeData.firstName,
+                last_name: employeeData.last_name,
+                email: employeeData.email,
+                SSN: employeeData.SSN,
+                addressStreet: employeeData.addressStreet,
+                addresCity: employeeData.addresCity,
+                isManager: employeeData.isManager,
+                addressState: employeeData.addressState,
+                addressPostal: employeeData.addressPostal,
+                employeeManagerNum: employeeData.employeeManagerNum,
+                status: employeeData.status,
+                department: employeeData.department,
+                hireDate: employeeData.hireDate}));
+            }).catch(() => {
+                reject("unable to create employee.");
+            });
+        }).catch(() => {
+            reject("unable to create employee.");
+    });
+}
 
-exports.deleteEmployeeByNum = num => {
-    return new Promise((resolve,reject) => {
-        Employee.destroy({
-            where: {
-                employeeNum: num
+module.exports.updateEmployee = (employeeData) => {
+    employeeData.isManager = (employeeData.isManager) ? true : false;
+    return new Promise((resolve, reject) => {
+        sequelize.sync().then(() => {
+            for (let x in employeeData) {
+                if(employeeData[x] == ""){
+                    employeeData[x] = null;
+                }
             }
-        })
-        .then(resolve())
-        .catch(reject('unable to delete employee'))
-    })
-};
+            resolve(Employee.update({
+                firstName: employeeData.firstName,
+                last_name: employeeData.last_name,
+                email: employeeData.email,
+                addressStreet: employeeData.addressStreet,
+                addresCity: employeeData.addresCity,
+                addressPostal: employeeData.addressPostal,
+                addressState: employeeData.addressPostal,
+                isManager: employeeData.isManager,
+                employeeManagerNum: employeeData.employeeManagerNum,
+                status: employeeData.status,
+                department: employeeData.department
+            }, { where: {
+                employeeNum: employeeData.employeeNum
+            }}));
+        }).catch(() => {
+            reject("unable to create employee.");
+        });
+    });
+}
 
-exports.deleteDepartmentByNum = num => {
-    return new Promise((resolve,reject) => {
-        Department.destroy({
-            where: {
-                departmentId: num
+module.exports.addDepartment = (departmentData) => {
+    return new Promise((resolve, reject) => {
+        sequelize.sync().then(() => {
+            for(let x in departmentData){
+                if(departmentData[x] == "") {
+                    departmentData[x] = null;
+                }
             }
-        })
-        .then(resolve())
-        .catch(reject('unable to delete employee'))
-    })
-};
+            Department.create({
+                departmentId: departmentData.departmentId,
+                departmentName: departmentData.departmentName
+            }).then(() => {
+                resolve(Department);
+            }).catch((err) => {
+                reject("unable to create department.");
+            });
+        }).catch(() => {
+            reject("unable to create department.");
+        });
+    });
+}
+
+module.exports.updateDepartment = (departmentData) => {
+    return new Promise((resolve, reject) => {
+        sequelize.sync().then(() => {
+            for(let x in departmentData){
+                if(departmentData[x] == "") {
+                    departmentData[x] = null;
+                }
+            }
+            Department.update({
+                departmentName: departmentData.departmentName
+            }, { where: {
+                departmentId: departmentData.departmentId
+            }}).then(() =>{
+                resolve(Department);
+            }).catch((err) => {
+                reject("unable to create department.");
+            });
+        }).catch(() => {
+            reject("unable to create department.");
+        });
+    });
+}
+
+module.exports.getDepartmentById = (id) => {
+    return new Promise((resolve, reject) => {
+        sequelize.sync().then(() => {
+            resolve(Department.findAll({
+                where:{
+                    departmentId: id
+                }}));
+        }).catch((err) => {
+            reject("unable to find department");
+        });
+    });
+}
+
+module.exports.deleteEmployeeByNum = (empNum) =>{
+    return new Promise((resolve, reject) => {
+        sequelize.sync().then(() => {
+            resolve(Employee.destroy({
+                where:{
+                    employeeNum: empNum
+                }}));
+        }).catch((err) => {
+            reject();
+        });
+    });
+}
