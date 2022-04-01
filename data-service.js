@@ -1,57 +1,45 @@
 const Sequelize = require('sequelize');
-
-var sequelize = new Sequelize('danje1mhbk3hao', 'turqcqnvbfsayk', 'c4ec2c9da223231ab7b71e5a3d8de6f16dec88da77844e3e4d8ed952fa58057a', {
-    host: 'ec2-184-73-199-72.compute-1.amazonaws.com', //host
+var sequelize = new Sequelize('de1qcbitp613jn', 'qnspinbizdpsom', '658baf6c79c4a81bbc09e0e7846431fd4cedaaf12ae0ffa93cb706395642c5ef', {
+    host: 'ec2-18-215-96-22.compute-1.amazonaws.com',
     dialect: 'postgres',
     port: 5432,
     dialectOptions: {
-        ssl: true
+        ssl: { 
+          rejectUnauthorized: false
+        }
     }
 });
 
-sequelize.authenticate().then(() => {
-    console.log('Connection has been established successfully.');
-}).catch((err) => {
-    console.log('Unable to connect to the database:', err);
+const Employee = sequelize.define('employee', {
+    employeeNum: {
+        type:Sequelize.INTEGER,
+        primaryKey:true,
+        autoIncrement:true
+    },
+    firstName:Sequelize.STRING,
+    lastName:Sequelize.STRING,
+    email:Sequelize.STRING,
+    SSN:Sequelize.STRING,
+    addressStreet:Sequelize.STRING,
+    addressCity:Sequelize.STRING,
+    addressState:Sequelize.STRING,
+    addressPostal:Sequelize.STRING,
+    maritalStatus:Sequelize.STRING,
+    isManager:Sequelize.BOOLEAN,
+    employeeManagerNum:Sequelize.INTEGER,
+    status:Sequelize.STRING,
+    department:Sequelize.INTEGER,
+    hireDate:Sequelize.STRING
 });
 
-// Creating Data Models
-const Employee = sequelize.define('Employee',{
-    employeeNum:{
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
+const Department = sequelize.define('department', {
+    departmentId: {
+        type:Sequelize.INTEGER,
+        primaryKey:true,
+        autoIncrement:true
     },
-    firstName: Sequelize.STRING,
-    last_name: Sequelize.STRING,
-    email: Sequelize.STRING,
-    SSN: Sequelize.STRING,
-    addressStreet: Sequelize.STRING,
-    addresCity: Sequelize.STRING,
-    addressState: Sequelize.STRING,
-    addressPostal: Sequelize.STRING,
-    matritalStatus: Sequelize.STRING,
-    isManager: Sequelize.BOOLEAN,
-    employeeManagerNum: Sequelize.INTEGER,
-    status: Sequelize.STRING,
-    department: Sequelize.INTEGER,
-    hireDate: Sequelize.STRING
-    }, {
-        createdAt: false, // disable createdAt
-        updatedAt: false // disable updatedAt
-});
-
-const Department = sequelize.define('Department',{
-    departmentId:{
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    departmentName: Sequelize.STRING
-    }, {
-        createdAt: false, // disable createdAt
-        updatedAt: false // disable updatedAt
-});
+    departmentName:Sequelize.STRING
+})
 
 module.exports.initialize = () => {
     return new Promise((resolve, reject) => {
