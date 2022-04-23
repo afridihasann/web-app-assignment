@@ -52,7 +52,7 @@ app.engine(".hbs", exphbs.engine({
 }));
 
 app.set('view engine', '.hbs');
-function onHttpStart() => {
+function onHttpStart() {
   console.log("Express http server listening on port " + HTTP_PORT);
 }
 
