@@ -52,7 +52,7 @@ app.engine(".hbs", exphbs.engine({
 }));
 
 app.set('view engine', '.hbs');
-function onHttpStart = () => {
+function onHttpStart() => {
   console.log("Express http server listening on port " + HTTP_PORT);
 }
 
@@ -63,8 +63,6 @@ app.use(function(req,res,next) {
   app.locals.activeRoute = (route == "/") ? "/":route.replace(/\/$/,"");
   next();
 });
-
-
 
 app.get('/', (req, res) => {
   res.render("home");
