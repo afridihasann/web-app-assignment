@@ -20,6 +20,7 @@ const dataService = require("./data-service.js");
 const path = require("path");
 const exphbs = require("express-handlebars"); //handlebars
 const dataServiceAuth = require (_dirname + "/data-service-auth.js")
+const clientSessions = require('client-sessions')
 
 const upload = multer({ storage: storage });
 const storage = multer.diskStorage({
@@ -85,7 +86,7 @@ app.use((req,res,next) => {
   next();
 });
 
-ensureLogin = (req,res,next) => {
+function ensureLogin = (req,res,next) => {
   if (!(req.session.user)) {
       res.redirect("/login");
   }
