@@ -168,7 +168,7 @@ app.get("/employees", ensureLogin, (req, res) => {
 app.get("/employee/:empNum", ensureLogin, (req, res) => {
 
   let viewData = {};
-  dataservice.getEmployeeByNum(req.params.empNum).then((data) => {
+  dataService.getEmployeeByNum(req.params.empNum).then((data) => {
       if (data) {
           viewData.employee = data; //store employee data
       } else {
@@ -176,7 +176,7 @@ app.get("/employee/:empNum", ensureLogin, (req, res) => {
       }
   }).catch(() => {
       viewData.employee = null;
-  }).then(dataservice.getDepartments)
+  }).then(dataService.getDepartments)
   .then((data) => {
       viewData.departments = data;
 
@@ -198,25 +198,25 @@ app.get("/employee/:empNum", ensureLogin, (req, res) => {
 });
 
 app.get('/employees/add', ensureLogin, (req,res) => {
-  dataservice.getDepartments()
+  dataService.getDepartments()
   .then(data => res.render("addEmployee", {departments: data}))
   .catch(err => res.render("addEmployee", {departments: []}));
 });
 
 app.post('/employees/add', ensureLogin, (req,res) => {
-  dataservice.addEmployee(req.body).then(() => {
+  dataService.addEmployee(req.body).then(() => {
       res.redirect("/employees");
   })
 });
 
 app.post('/employee/update', ensureLogin, (req, res) => {
-  dataservice.updateEmployee(req.body).then(() => {
+  dataService.updateEmployee(req.body).then(() => {
       res.redirect("/employees");
   })
 });
 
 app.get('/employees/delete/:value', ensureLogin, (req,res) => {
-  dataservice.deleteEmployeeByNum(req.params.value)
+  dataService.deleteEmployeeByNum(req.params.value)
   .then(res.redirect("/employees"))
   .catch(err => res.status(500).send("Unable to Remove Employee / Employee not found"))
 });
@@ -226,7 +226,7 @@ app.get('/employees/delete/:value', ensureLogin, (req,res) => {
 //Managers
 
 app.get("/managers", ensureLogin, (req, res) => {
-  dataservice.getManagers()
+  dataService.getManagers()
   .then(data => res.render("employees", {employees: data}))
   .catch(err => res.status(404).send("managers data not found"))
 });
@@ -236,7 +236,7 @@ app.get("/managers", ensureLogin, (req, res) => {
 //Departments
 
 app.get("/departments", ensureLogin, (req, res) => {
-  dataservice.getDepartments()
+  dataService.getDepartments()
   .then(data => res.render("departments", { departments: data }))
   .catch(err => res.status(404).send('departments not found'))
 });
@@ -246,25 +246,25 @@ app.get("/departments/add", ensureLogin, (req,res) => {
 });
 
 app.post("/departments/add", ensureLogin, (req,res) => {
-  dataservice.addDepartment(req.body).then(() => {
+  dataService.addDepartment(req.body).then(() => {
       res.redirect("/departments");
   })
 });
 
 app.post("/department/update", ensureLogin, (req,res) => {
-  dataservice.updateDepartment(req.body).then(() => {
+  dataService.updateDepartment(req.body).then(() => {
       res.redirect("/departments");
   })
 });
 
 app.get("/department/:departmentId", ensureLogin, (req, res) =>{
-  dataservice.getDepartmentById(req.params.departmentId)
+  dataService.getDepartmentById(req.params.departmentId)
   .then((data) => {res.render("department", { department: data })})
   .catch(err => res.status(404).send("department not found"))
 });
 
 app.get('/departments/delete/:value', ensureLogin, (req,res) => {
-  dataservice.deleteDepartmentByNum(req.params.value)
+  dataService.deleteDepartmentByNum(req.params.value)
   .then(res.redirect("/departments"))
   .catch(err => res.status(500).send("Unable to Remove Department / Department not found"))
 });
