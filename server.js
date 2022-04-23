@@ -10,20 +10,21 @@
 *
 ********************************************************************************/ 
 
-var HTTP_PORT = process.env.PORT || 8080;
-var express = require("express");
+const HTTP_PORT = process.env.PORT || 8080;
+const express = require("express");
 const multer = require("multer");
-var app = express();
-var path = require("path");
+const app = express();
+const path = require("path");
 const bodyParser = require("body-parser");
-var dataService = require("./data-service.js");
-const { resolve } = require("path");
+const dataService = require("./data-service.js");
+const path = require("path");
+const exphbs = require("express-handlebars"); //handlebars
+const dataServiceAuth = require (_dirname + "/data-service-auth.js")
 
-//handlebar
 
-const exphbs = require("express-handlebars");
 app.use(express.static('public')); // static middleware
 app.use(bodyParser.urlencoded({ extended: true }));
+
 app.engine(".hbs", exphbs.engine({
   extname: ".hbs",
   defaultLayout: "main",
@@ -60,6 +61,10 @@ app.get("/", (req, res) => {
   // res.sendFile(path.join(__dirname, "/views/home.html"));
 });
 
+app.get('/home', (req, res) => {
+  res.render("home");
+});
+
 
 const storage = multer.diskStorage({
   destination: "./public/images/uploaded",
@@ -77,14 +82,35 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.use(clientSessions( {
+  cookieName: "session",
+  secret: "web_a6_secret",
+  duration: 2*60*1000,
+  activeDuration: 1000*60
+}));
+
+app.use((req,res,next) => {
+  res.locals.session = req.session;
+  next();
+});
+
+ensureLogin = (req,res,next) => {
+  if (!(req.session.user)) {
+      res.redirect("/login");
+  }
+  else { next(); }
+};
+
 app.get("/about", function (req, res) {
   // res.sendFile(path.join(__dirname, "/views/about.html"));
   res.render("about", {});
 });
 
+
+
 //Employee
 
-app.get("/employees", (req, res) => {
+app.get("/employees", ensureLogin, (req, res) => {
   if (req.query.status) {
     dataService
       .getEmployeesByStatus(req.query.status)
@@ -140,78 +166,121 @@ app.get("/employees", (req, res) => {
       });
 });
 
-//employeeID
-app.get("/employee/:id", (req, res) => {
-  dataService.getEmployeeByNum(req.params.id)
-    .then((data) => {
-      res.render("employee", { employee: data });
-    })
-    .catch((err) => {
-      res.render("employee", { message: "no results" });
-    });
+
+
+//Employees
+
+app.get("/employee/:empNum", ensureLogin, (req, res) => {
+
+  let viewData = {};
+  dataservice.getEmployeeByNum(req.params.empNum).then((data) => {
+      if (data) {
+          viewData.employee = data; //store employee data
+      } else {
+          viewData.employee = null;
+      }
+  }).catch(() => {
+      viewData.employee = null;
+  }).then(dataservice.getDepartments)
+  .then((data) => {
+      viewData.departments = data;
+
+      for (let i = 0; i < viewData.departments.length; i++) {
+          if (viewData.departments[i].departmentId == viewData.employee.department) {
+              viewData.departments[i].selected = true;
+          }
+      }
+
+  }).catch(() => {
+      viewData.departments = []; 
+  }).then(() => {
+      if (viewData.employee == null) { //return an error
+          res.status(404).send("Employee Not Found");
+      } else {
+          res.render("employee", { viewData: viewData }); 
+      }
+  });
 });
 
+app.get('/employees/add', ensureLogin, (req,res) => {
+  dataservice.getDepartments()
+  .then(data => res.render("addEmployee", {departments: data}))
+  .catch(err => res.render("addEmployee", {departments: []}));
+});
 
-//post employee
-app.post("/employee/update", (req, res) => { 
-  dataService.updateEmployee(req.body)
-  .then(res.redirect("/employees"))
-  .catch((err) => res.render("employee", { message: "no results"}));
-}); 
+app.post('/employees/add', ensureLogin, (req,res) => {
+  dataservice.addEmployee(req.body).then(() => {
+      res.redirect("/employees");
+  })
+});
 
-app.get('/employees/delete/:value', (req,res) => {
+app.post('/employee/update', ensureLogin, (req, res) => {
+  dataservice.updateEmployee(req.body).then(() => {
+      res.redirect("/employees");
+  })
+});
+
+app.get('/employees/delete/:value', ensureLogin, (req,res) => {
   dataservice.deleteEmployeeByNum(req.params.value)
   .then(res.redirect("/employees"))
   .catch(err => res.status(500).send("Unable to Remove Employee / Employee not found"))
 });
 
-app.get("/managers", (req, res) => {
-  let managers = [];
-  dataService
-    .getManagers()
-    .then((employees) => {
-      for (let i = 0; i < employees.length; i++) {
-        if (employees[i].isManager) {
-          managers.push(employees[i]);
-          res.json(employees);
-        }
-      }
-    })
-    .catch((err) => {
-      res.send(err);
-    });
+
+
+//Managers
+
+app.get("/managers", ensureLogin, (req, res) => {
+  dataservice.getManagers()
+  .then(data => res.render("employees", {employees: data}))
+  .catch(err => res.status(404).send("managers data not found"))
 });
 
-app.get("/departments", function (req, res) {
-  dataService
-    .getDepartments()
-    .then((data) => {
-      res.render("departments", { departments: data });
-    })
-    .catch((err) => {
-      res.render("departments", { message: "no results" });
-    });
+
+
+//Departments
+
+app.get("/departments", ensureLogin, (req, res) => {
+  dataservice.getDepartments()
+  .then(data => res.render("departments", { departments: data }))
+  .catch(err => res.status(404).send('departments not found'))
 });
 
-app.get("/employees/add", function (req, res) {
-  // res.sendFile(path.join(__dirname, "/views/addEmployee.html"));
-  res.render("addEmployee", {});
+app.get("/departments/add", ensureLogin, (req,res) => {
+  res.render(path.join(__dirname + "/views/addDepartment.hbs"));
 });
 
-app.post("/employees/add", function (req, res) {
-  dataService
-    .addEmployee(req.body)
-    .then(() => {
-      res.redirect("/employees");
-    })
-    .catch(function (err) {
-      console.log("An error was encountered: " + err);
-    });
-}); ``
+app.post("/departments/add", ensureLogin, (req,res) => {
+  dataservice.addDepartment(req.body).then(() => {
+      res.redirect("/departments");
+  })
+});
 
-app.get("/images/add", function (req, res) {
+app.post("/department/update", ensureLogin, (req,res) => {
+  dataservice.updateDepartment(req.body).then(() => {
+      res.redirect("/departments");
+  })
+});
+
+app.get("/department/:departmentId", ensureLogin, (req, res) =>{
+  dataservice.getDepartmentById(req.params.departmentId)
+  .then((data) => {res.render("department", { department: data })})
+  .catch(err => res.status(404).send("department not found"))
+});
+
+app.get('/departments/delete/:value', ensureLogin, (req,res) => {
+  dataservice.deleteDepartmentByNum(req.params.value)
+  .then(res.redirect("/departments"))
+  .catch(err => res.status(500).send("Unable to Remove Department / Department not found"))
+});
+
+
+
+//Images
+
+app.get("/images/add", ensureLogin, function (req, res) {
   // res.sendFile(path.join(__dirname, "/views/addImage.html"));
-  res.render("addImage", {});
+  res.render(path.join(__dirname + "/views/addImage.hbs"));
 });
 
 app.post("/images/add", upload.single("imageFile"), (req, res) => {
@@ -226,14 +295,75 @@ app.get("/images", function (req, res) {
     res.send(parsedItems);
   });
 });
-//////////////////
 
-// error page (did not try to make it custom. maybe next time)
+
+
+//Login
+
+app.get("/login", (req,res) => {
+  res.render("login");
+});
+
+app.get("/register", (req,res) => {
+  res.render("register");
+});
+
+app.post("/register", (req,res) => {
+  dataServiceAuth.registerUser(req.body)
+  .then(() => res.render("register", {successMessage: "User created" } ))
+  .catch (err => res.render("register", {errorMessage: err, userName:req.body.userName }) )
+});
+
+app.post("/login", (req,res) => {
+  req.body.userAgent = req.get('User-Agent');
+  dataServiceAuth.checkUser(req.body)
+  .then(user => {
+      req.session.user = {
+          userName:user.userName,
+          email:user.email,
+          loginHistory:user.loginHistory
+      }
+      res.redirect("/employees");
+  })
+  .catch(err => {
+      res.render("login", {errorMessage:err, userName:req.body.userName} )
+  }) 
+});
+
+
+
+//Logout
+
+app.get("/logout", (req,res) => {
+  req.session.reset();
+  res.redirect("/login");
+});
+
+
+
+//UserHistory
+
+app.get("/userHistory", ensureLogin, (req,res) => {
+  res.render("userHistory", {user:req.session.user} );
+});
+
+
+
+
+//Error
+
 app.use((req, res) => {
   res.status(404).send("404 Page Not Found");
 });
 
-// step 5 ( didnt add app.listen() ) see line 27
-dataService
-  .initialize()
-  .catch((err) => { console.error(err); });
+
+
+//Initialize
+
+dataservice.initialize()
+.then(dataServiceAuth.initialize())
+.then(() => {
+    app.listen(HTTP_PORT, onHttpStart())
+}).catch (() => {
+    console.log('promises unfulfilled');
+})
