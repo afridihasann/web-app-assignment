@@ -21,13 +21,18 @@ const exphbs = require("express-handlebars"); //handlebars
 const dataServiceAuth = require ("./data-service-auth.js")
 const clientSessions = require('client-sessions')
 
-const upload = multer({ storage: storage });
+
+
 const storage = multer.diskStorage({
   destination: "./public/images/uploaded",
   filename: function (req, file, cb) {
     cb(null, Date.now() + path.extname(file.originalname));
   },
 });
+
+
+const upload = multer({ storage: storage });
+
 
 app.engine(".hbs", exphbs.engine({
   extname: ".hbs",
