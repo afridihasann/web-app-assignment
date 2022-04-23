@@ -61,8 +61,9 @@ app.use(function(req,res,next) {
   next();
 });
 
-onHttpStart = () => {
+function onHttpStart = () => {
   console.log("Express http server listening on port " + HTTP_PORT);
+}
 
 app.get('/', (req, res) => {
   res.render("home");
@@ -74,7 +75,7 @@ app.get('/home', (req, res) => {
 
 app.use(clientSessions( {
   cookieName: "session",
-  secret: "web_a6_secret",
+  secret: "WEB322A6Secret",
   duration: 2*60*1000,
   activeDuration: 1000*60
 }));
