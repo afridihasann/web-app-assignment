@@ -14,7 +14,6 @@ const HTTP_PORT = process.env.PORT || 8080;
 const express = require("express");
 const multer = require("multer");
 const app = express();
-const path = require("path");
 const bodyParser = require("body-parser");
 const dataService = require("./data-service.js");
 const path = require("path");
