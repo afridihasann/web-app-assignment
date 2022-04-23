@@ -21,9 +21,13 @@ const path = require("path");
 const exphbs = require("express-handlebars"); //handlebars
 const dataServiceAuth = require (_dirname + "/data-service-auth.js")
 
-
-app.use(express.static('public')); // static middleware
-app.use(bodyParser.urlencoded({ extended: true }));
+const upload = multer({ storage: storage });
+const storage = multer.diskStorage({
+  destination: "./public/images/uploaded",
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
 
 app.engine(".hbs", exphbs.engine({
   extname: ".hbs",
@@ -49,17 +53,16 @@ app.engine(".hbs", exphbs.engine({
 
 app.set('view engine', '.hbs');
 
-
-
-// setup http server to listen on HTTP_PORT
-app.listen(HTTP_PORT); // .then(() => { app.listen(HTTP_PORT); })
-
-// setup a 'route' to listen on the default url path
-app.get("/", (req, res) => {
-  console.log("Express http server listening on: " + HTTP_PORT);
-  res.render("home", {});
-  // res.sendFile(path.join(__dirname, "/views/home.html"));
+app.use(express.static('public')); // static middleware
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(function(req,res,next) {
+  let route = req.baseUrl+req.path;
+  app.locals.activeRoute = (route == "/") ? "/":route.replace(/\/$/,"");
+  next();
 });
+
+onHttpStart = () => {
+  console.log("Express http server listening on port " + HTTP_PORT);
 
 app.get('/', (req, res) => {
   res.render("home");
@@ -67,23 +70,6 @@ app.get('/', (req, res) => {
 
 app.get('/home', (req, res) => {
   res.render("home");
-});
-
-
-const storage = multer.diskStorage({
-  destination: "./public/images/uploaded",
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-
-const upload = multer({ storage: storage });
-
-//middleware for routes
-app.use(function (req, res, next) {
-  let route = req.baseUrl + req.path;
-  app.locals.activeRoute = (route == "/") ? "/" : route.replace(/\/$/, "");
-  next();
 });
 
 app.use(clientSessions( {
