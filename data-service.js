@@ -1,3 +1,15 @@
+/*********************************************************************************
+* WEB322 – Assignment 06
+* I declare that this assignment is my own work in accordance with Seneca Academic Policy. No part
+* of this assignment has been copied manually or electronically from any other source
+* (including 3rd party web sites) or distributed to other students.
+*
+* Name: Afridi Hasan Student ID: 125653196 Date: April 22nd 2022
+*
+* Online (Heroku) Link: https://gentle-retreat-63246.herokuapp.com/
+*
+********************************************************************************/ 
+
 const Sequelize = require('sequelize');
 var sequelize = new Sequelize('de1qcbitp613jn', 'qnspinbizdpsom', '658baf6c79c4a81bbc09e0e7846431fd4cedaaf12ae0ffa93cb706395642c5ef', {
     host: 'ec2-18-215-96-22.compute-1.amazonaws.com',
