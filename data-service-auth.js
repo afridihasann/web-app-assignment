@@ -8,7 +8,7 @@
 *
 * Online (Heroku) Link: https://gentle-retreat-63246.herokuapp.com/
 *
-********************************************************************************/ 
+**********************************************************************************/ 
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
@@ -31,9 +31,9 @@ let User;
 
 module.exports.initialize = () => {
     return new Promise((resolve,reject) => {
-        let db = mongoose.createConnection("mongodb+srv://afridihasan:qwerty12345@senecaweb.dopkz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", { useNewUrlParser: true });
+        let db = mongoose.createConnection("mongodb+srv://afridihasan:abcd1234@senecaweb.dopkz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", { useNewUrlParser: true });
         db.on('error', (err) => {
-            reject(err); // reject promise
+            reject(err); // reject promise 
         })
         db.once('open', () => {
             User = db.model("Users",userSchema);
