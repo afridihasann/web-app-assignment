@@ -31,7 +31,7 @@ let User;
 
 module.exports.initialize = () => {
     return new Promise((resolve,reject) => {
-        let db = mongoose.createConnection("mongodb+srv://afridihasan:abcd1234@senecaweb.dopkz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", { useNewUrlParser: true });
+        let db = mongoose.createConnection("mongodb+srv://afridihasan:abcd1234@senecaweb.dopkz.mongodb.net/WEB322A6Secret?retryWrites=true&w=majority", { useNewUrlParser: true });
         db.on('error', (err) => {
             reject(err); // reject promise 
         })
