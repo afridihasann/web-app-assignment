@@ -53,6 +53,9 @@ app.engine(".hbs", exphbs.engine({
 }));
 
 app.set('view engine', '.hbs');
+function onHttpStart = () => {
+  console.log("Express http server listening on port " + HTTP_PORT);
+}
 
 app.use(express.static('public')); // static middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -62,9 +65,7 @@ app.use(function(req,res,next) {
   next();
 });
 
-function onHttpStart = () => {
-  console.log("Express http server listening on port " + HTTP_PORT);
-}
+
 
 app.get('/', (req, res) => {
   res.render("home");
