@@ -355,7 +355,7 @@ app.use((req, res) => {
 
 //Initialize
 
-dataservice.initialize()
+dataService.initialize()
 .then(dataServiceAuth.initialize())
 .then(() => {
     app.listen(HTTP_PORT, onHttpStart())
